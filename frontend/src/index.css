@@ -1,0 +1,322 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  /* === ESCAPE COLOR PALETTE === */
+  --bg-dark:    #0e0b1e;          /* Deep Midnight Plum  — primary background */
+  --bg-surface: #1c1535;          /* Rich Indigo         — card / panel background */
+  --bg-card:    rgba(28,21,53,0.85);
+  
+  --primary:    #7c3aed;          /* Vivid Violet        — buttons, active states */
+  --primary-glow: rgba(124,58,237,0.4);
+  --primary-hover: #6d28d9;
+
+  --accent:     #f59e0b;          /* Warm Amber          — highlights, prices, badges */
+  --accent-glow: rgba(245,158,11,0.35);
+  
+  --text-main:  #ede9fe;          /* Soft Lavender White — main body text */
+  --text-muted: #a78bfa;          /* Light Purple        — muted / label text */
+  --text-bright:#ffffff;
+  
+  --success:    #10b981;
+  --danger:     #ef4444;
+  --danger-muted: #fca5a5;
+  --border:     rgba(124, 58, 237, 0.2);
+  --border-glow: rgba(124, 58, 237, 0.5);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', system-ui, sans-serif; }
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  /* Subtle moving gradient background */
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(124,58,237,0.2) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 120%, rgba(245,158,11,0.08) 0%, transparent 60%);
+}
+
+.bg-app { min-height: 100vh; position: relative; }
+
+/* ====== HEADER ====== */
+.header {
+  background: rgba(14, 11, 30, 0.92);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: blur(20px);
+  padding: 0 32px;
+  height: 64px;
+}
+
+.logo h1 { 
+  background: linear-gradient(135deg, #ede9fe 0%, #c4b5fd 50%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+}
+
+.nav-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+.nav-link:hover { color: var(--text-bright); background: rgba(124,58,237,0.15); }
+.nav-link.active { color: var(--text-bright); background: rgba(124,58,237,0.25); }
+.premium-nav {
+  color: var(--accent) !important;
+  background: rgba(245,158,11,0.12) !important;
+  border: 1px solid rgba(245,158,11,0.2);
+}
+.premium-nav:hover { background: rgba(245,158,11,0.22) !important; }
+
+/* ====== HERO ====== */
+.hero-section {
+  background: linear-gradient(160deg, #0e0b1e 0%, #1c1535 40%, #120a2a 100%);
+  padding: 60px 0 100px 0;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.hero-section::before {
+  content: '';
+  position: absolute;
+  top: -60px; left: 50%;
+  transform: translateX(-50%);
+  width: 800px; height: 400px;
+  background: radial-gradient(ellipse, rgba(124,58,237,0.18) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ====== SEARCH CONTAINER ====== */
+.search-container {
+  max-width: 1000px;
+  width: 90%;
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,58,237,0.1);
+}
+
+/* ====== TABS ====== */
+.tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(124,58,237,0.15);
+  padding: 0 24px;
+  overflow-x: auto;
+}
+.tab {
+  padding: 16px 22px;
+  cursor: pointer;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-bottom: 3px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--text-main); }
+.tab.active { color: var(--text-bright); border-bottom-color: var(--primary); }
+.tab.active.text-accent { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ====== FORMS ====== */
+.search-form {
+  grid-template-columns: repeat(5, 1fr);
+  padding: 24px;
+  align-items: end;
+}
+@media(max-width: 900px) { .search-form { grid-template-columns: repeat(2, 1fr); } }
+@media(max-width: 600px) { .search-form { grid-template-columns: 1fr; } }
+
+label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+input, select {
+  width: 100%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  padding: 12px 14px;
+  border-radius: 10px;
+  outline: none;
+  font-size: 0.97rem;
+  transition: border 0.25s, box-shadow 0.25s;
+}
+input:focus, select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-glow);
+}
+input::placeholder { color: rgba(167,139,250,0.4); }
+select option { background: #1c1535; }
+
+/* ====== BUTTONS ====== */
+button {
+  outline: none; border: none; cursor: pointer;
+  font-weight: 600;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: all 0.2s; border-radius: 10px;
+}
+.outline-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  padding: 8px 18px;
+}
+.outline-btn:hover { background: rgba(124,58,237,0.15); border-color: var(--primary); }
+
+.large-btn {
+  background: linear-gradient(135deg, var(--primary) 0%, #9333ea 100%);
+  color: white;
+  padding: 14px 24px;
+  font-size: 1.05rem;
+  width: 100%;
+  box-shadow: 0 6px 24px var(--primary-glow);
+  border-radius: 12px;
+}
+.large-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(124,58,237,0.55);
+}
+.large-btn:disabled { opacity: 0.7; }
+
+/* ====== MAIN CONTENT ====== */
+.main-content {
+  max-width: 1200px;
+  margin: -40px auto 60px auto;
+  width: 95%;
+  position: relative;
+  z-index: 10;
+}
+
+/* ====== CARDS / PANELS ====== */
+.card, .dashboard, .discovery-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+.card:hover { border-color: rgba(124,58,237,0.4); }
+
+.dashboard {
+  background: rgba(14, 11, 30, 0.92);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--border);
+  padding: 32px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+}
+
+/* ====== HOTEL CARDS ====== */
+.hotel-card-vertical {
+  display: flex; flex-direction: column;
+  padding: 0; overflow: hidden;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.hotel-card-vertical:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(124,58,237,0.25); }
+.hotel-card-vertical img { width: 100%; height: 200px; object-fit: cover; }
+.hotel-card-vertical-content { padding: 20px; }
+
+/* ====== BADGES ====== */
+.badge {
+  background: rgba(16,185,129,0.18);
+  color: #6ee7b7;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-block;
+}
+.badge.danger { background: rgba(239,68,68,0.18); color: #fca5a5; }
+.badge.success { background: rgba(16,185,129,0.18); color: #6ee7b7; }
+
+/* ====== TEXT UTILITIES ====== */
+.text-muted    { color: var(--text-muted); }
+.text-danger   { color: var(--danger); }
+.text-danger-muted { color: var(--danger-muted); }
+.text-primary  { color: var(--primary) !important; }
+.text-accent   { color: var(--accent) !important; }
+.text-white    { color: var(--text-bright); }
+
+/* ====== LAYOUT UTILS ====== */
+.grid { display: grid; }
+.gap-4 { gap: 1rem; } .gap-6 { gap: 1.5rem; } .gap-8 { gap: 2rem; }
+.grid-cols-2 { grid-template-columns: repeat(2,1fr); }
+.grid-cols-3 { grid-template-columns: repeat(3,1fr); }
+.layout-2-col { grid-template-columns: 1fr 1fr; }
+@media(max-width:800px) { .layout-2-col { grid-template-columns: 1fr; } }
+.layout-day-cards { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+.flex { display: flex; } .flex-col { flex-direction: column; }
+.justify-between { justify-content: space-between; }
+.items-center { align-items: center; } .items-start { align-items: flex-start; }
+.mb-2{margin-bottom:.5rem} .mb-4{margin-bottom:1rem} .mb-6{margin-bottom:1.5rem}
+.mt-2{margin-top:.5rem} .mt-4{margin-top:1rem} .mt-6{margin-top:1.5rem} .mt-8{margin-top:2rem}
+.pb-2{padding-bottom:.5rem} .pb-3{padding-bottom:.75rem} .pt-2{padding-top:.5rem}
+.mr-1{margin-right:.25rem} .mr-2{margin-right:.5rem} .ml-2{margin-left:.5rem}
+
+/* ====== ANIMATIONS ====== */
+.animate-fade-in { animation: fadeIn 0.5s ease forwards; }
+.animate-spin { animation: spin 1s linear infinite; }
+.delay-200 { animation-delay: 0.2s; opacity: 0; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ====== MODAL ====== */
+.modal-overlay {
+  position: fixed; top:0; left:0; right:0; bottom:0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(10px);
+  display: flex; justify-content: center; align-items: center;
+  z-index: 9999;
+}
+.modal-content {
+  background: #1c1535;
+  width: 90%; max-width: 800px; max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid var(--border-glow);
+  border-radius: 16px;
+  padding: 28px;
+  position: relative;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+}
+.modal-close {
+  position: absolute; top: 16px; right: 16px;
+  background: rgba(124,58,237,0.15);
+  padding: 8px; border-radius: 50%;
+  color: var(--text-muted); cursor: pointer; border: none;
+  transition: 0.2s;
+}
+.modal-close:hover { background: rgba(124,58,237,0.3); color: white; }
+
+/* ====== REPLAN BUTTON ====== */
+.replan-btn {
+  padding: 12px 24px;
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.3);
+  color: var(--accent);
+}
+.replan-btn:hover { background: rgba(245,158,11,0.22); }
+
+/* ====== ITINERARY CARDS ====== */
+.itinerary-card .group:hover .bg-primary\/50 { background: var(--primary); }
+
+/* ====== LEAFLET OVERRIDES ====== */
+.leaflet-container { background: #130f27 !important; z-index: 1; }
+.leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #1c1535 !important; color: var(--text-main) !important; }
+.leaflet-tile-pane { filter: hue-rotate(250deg) saturate(0.6) brightness(0.7); }

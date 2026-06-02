@@ -1,0 +1,8 @@
+[
+    {"type": "Train", "provider": "Rajdhani Express (12431)", "cost": 1800, "duration": "12h 00m", "departure": "08:00 PM", "arrival": "08:00 AM", "origin": "DEL", "destination": "BOM", "skyscanner_link": "https://www.ixigo.com/trains/train-running-status"},
+    {"type": "Train", "provider": "Shatabdi Fast (12011)", "cost": 1200, "duration": "14h 30m", "departure": "06:00 AM", "arrival": "08:30 PM", "origin": "DEL", "destination": "GOI", "skyscanner_link": "https://www.ixigo.com/trains/train-running-status"},
+    {"type": "Train", "provider": "Garib Rath (12111)", "cost": 800, "duration": "16h 00m", "departure": "11:00 PM", "arrival": "03:00 PM", "origin": "BOM", "destination": "GOI", "skyscanner_link": "https://www.ixigo.com/trains/train-running-status"},
+    {"type": "Bus", "provider": "IntrCity SmartBus Volvo", "cost": 1100, "duration": "14h", "departure": "09:00 PM", "arrival": "11:00 AM", "origin": "DEL", "destination": "GOI", "skyscanner_link": "https://www.redbus.in/"},
+    {"type": "Bus", "provider": "ZingBus AC Sleeper", "cost": 950, "duration": "15h", "departure": "10:00 PM", "arrival": "01:00 PM", "origin": "DEL", "destination": "GOI", "skyscanner_link": "https://www.redbus.in/"},
+    {"type": "Bus", "provider": "Orange Travels", "cost": 1300, "duration": "13h 30m", "departure": "08:30 PM", "arrival": "10:00 AM", "origin": "BOM", "destination": "GOI", "skyscanner_link": "https://www.redbus.in/"}
+]
