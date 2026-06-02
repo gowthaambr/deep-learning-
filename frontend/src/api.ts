@@ -12,3 +12,6 @@ export const getOffers = async () => (await axios.get(`${API_URL}/offers`)).data
 export const searchTransport = async (origin: string, destination: string, type: string) => (await axios.get(`${API_URL}/search-transport?origin=${origin}&destination=${destination}&type=${type}`)).data;
 export const searchHotels = async (destination: string) => (await axios.get(`${API_URL}/search-hotels?destination=${destination}`)).data;
 export const getMyTrips = async () => (await axios.get(`${API_URL}/my-trips`)).data;
+export const predictPrice = async (origin: string, destination: string, price: number, transportType: string) =>
+  (await axios.get(`${API_URL}/predict-price?origin=${origin}&destination=${destination}&price=${price}&transport_type=${transportType}`)).data;
+export const getLstmModelInfo = async () => (await axios.get(`${API_URL}/lstm-model-info`)).data;

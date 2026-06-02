@@ -7,6 +7,7 @@ from models import UserInput, TravelPlan, DestinationSummary, PackageOffer
 from agents.orchestrator import orchestrator
 from agents.execution_agent import execution_agent
 from agents.simulator import simulator
+from agents.lstm_price_predictor import lstm_predictor
 
 app = FastAPI(title="Agentic Travel Planning API (Free Tier Integrations)")
 
@@ -66,6 +67,22 @@ async def get_weather(destination: str):
 @app.get("/my-trips")
 async def my_trips():
     return list(db_plans.values())
+
+@app.get("/predict-price")
+async def predict_price(origin: str, destination: str, price: float, transport_type: str = "Flight"):
+    route_key = f"{origin.upper()}-{destination.upper()}-{transport_type}"
+    return lstm_predictor.predict(price, route_key)
+
+@app.get("/lstm-model-info")
+async def lstm_model_info():
+    return {
+        "summary": lstm_predictor.model_summary(),
+        "architecture": "Input(10,1) → LSTM(64) → Dropout(0.2) → LSTM(32) → Dropout(0.2) → Dense(16,relu) → Dense(1,sigmoid)",
+        "task": "Binary classification — flight price trend (UP / DOWN)",
+        "training_data": "1200 synthetic Indian flight price sequences with trend, seasonality, noise",
+        "sequence_length": 10,
+        "framework": "TensorFlow / Keras"
+    }
 
 if __name__ == "__main__":
     import uvicorn

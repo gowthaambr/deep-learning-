@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plane, Train, Bus, Hotel, Search, AlertTriangle, RefreshCw, MapPin, DollarSign, Clock, Star, Map as MapIcon, Briefcase, ExternalLink, X, Cloud, CloudRain, Sun } from 'lucide-react';
-import { planTrip, updatePlan, getTrending, getOffers, searchTransport, searchHotels, getMyTrips } from './api';
+import { Plane, Train, Bus, Hotel, Search, AlertTriangle, RefreshCw, MapPin, DollarSign, Clock, Star, Map as MapIcon, Briefcase, ExternalLink, X, Cloud, CloudRain, Sun, TrendingUp, TrendingDown, Brain } from 'lucide-react';
+import { planTrip, updatePlan, getTrending, getOffers, searchTransport, searchHotels, getMyTrips, predictPrice, getLstmModelInfo } from './api';
 import MapWidget from './components/MapWidget';
 import './index.css';
 
@@ -21,6 +21,12 @@ function App() {
   const [filterSort, setFilterSort] = useState('relevance');
   
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
+
+  // LSTM price prediction state
+  const [lstmPredictions, setLstmPredictions] = useState<Record<number, any>>({});
+  const [planLstmPrediction, setPlanLstmPrediction] = useState<any | null>(null);
+  const [lstmModelInfo, setLstmModelInfo] = useState<any | null>(null);
+  const [lstmLoading, setLstmLoading] = useState<Record<number, boolean>>({});
 
   const [formData, setFormData] = useState({
     origin: 'DEL',
@@ -57,6 +63,7 @@ function App() {
   const handleManualSearch = async (e: React.FormEvent) => {
       e.preventDefault();
       setLoading(true);
+      setLstmPredictions({});
       try {
           if (activeTab === 'hotels') {
               const res = await searchHotels(manualDestination);
@@ -67,6 +74,8 @@ function App() {
               if (activeTab === 'buses') type = 'bus';
               const res = await searchTransport(manualOrigin, manualDestination, type);
               setRawSearchResults(res);
+              // Auto-fetch LSTM predictions for all transport results
+              fetchAllLstmPredictions(res, manualOrigin, manualDestination);
           }
       } catch(e) { console.error(e); }
       setLoading(false);
@@ -75,6 +84,7 @@ function App() {
   const handlePlanTrip = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setPlanLstmPrediction(null);
     try {
       const input = {
         origin: formData.origin,
@@ -86,6 +96,11 @@ function App() {
       };
       const result = await planTrip(input);
       setPlan(result);
+      // Fetch LSTM prediction for the selected transport
+      const pred = await predictPrice(formData.origin, formData.destination, result.transport.cost, result.transport.type);
+      setPlanLstmPrediction(pred);
+      // Fetch model info once
+      if (!lstmModelInfo) getLstmModelInfo().then(setLstmModelInfo).catch(console.error);
     } catch (error) { console.error(error); }
     setLoading(false);
   };
@@ -96,8 +111,26 @@ function App() {
     try {
       const result = await updatePlan(plan.id, "Simulated price surge on Flights");
       setPlan(result);
+      // Re-run LSTM prediction after replanning
+      const pred = await predictPrice(result.origin, result.destination, result.transport.cost, result.transport.type);
+      setPlanLstmPrediction(pred);
     } catch (error) { console.error(error); }
     setLoading(false);
+  };
+
+  const fetchLstmForIndex = async (item: any, idx: number, origin: string, destination: string) => {
+    setLstmLoading(prev => ({ ...prev, [idx]: true }));
+    try {
+      const pred = await predictPrice(origin, destination, item.cost, item.type || 'Flight');
+      setLstmPredictions(prev => ({ ...prev, [idx]: pred }));
+    } catch (e) { console.error(e); }
+    setLstmLoading(prev => ({ ...prev, [idx]: false }));
+  };
+
+  const fetchAllLstmPredictions = async (items: any[], origin: string, destination: string) => {
+    items.forEach((item, idx) => {
+      if (item.cost) fetchLstmForIndex(item, idx, origin, destination);
+    });
   };
 
   const mapMarkers = plan ? [
@@ -328,6 +361,14 @@ function App() {
                                     <div className="text-center text-muted font-bold tracking-widest">{item.duration}</div>
                                     <div className="text-right">
                                         <div className="text-xl font-bold text-accent mb-2">₹{item.cost}</div>
+                                        {lstmPredictions[i] ? (
+                                            <div className={`text-xs font-bold px-2 py-1 rounded-lg mb-2 flex items-center gap-1 justify-end ${lstmPredictions[i].trend === 'UP' ? 'text-red-400 bg-red-900/30' : 'text-green-400 bg-green-900/30'}`}>
+                                                {lstmPredictions[i].trend === 'UP' ? <TrendingUp size={12}/> : <TrendingDown size={12}/>}
+                                                {lstmPredictions[i].trend} {lstmPredictions[i].confidence}%
+                                            </div>
+                                        ) : lstmLoading[i] ? (
+                                            <div className="text-xs text-muted mb-2 flex items-center gap-1 justify-end"><Brain size={12} className="animate-pulse"/> Predicting…</div>
+                                        ) : null}
                                         <button className="primary rounded bg-white text-black font-bold" style={{padding:'6px 16px'}}>Route Details</button>
                                     </div>
                                 </>
@@ -428,6 +469,24 @@ function App() {
                             </div>
                             <div className="text-right text-xl font-bold">₹{plan.transport.cost}</div>
                         </div>
+                        {planLstmPrediction && (
+                            <div className={`mt-3 p-3 rounded-xl flex items-center justify-between text-sm font-bold ${planLstmPrediction.trend === 'UP' ? 'bg-red-900/30 border border-red-500/30' : 'bg-green-900/30 border border-green-500/30'}`}>
+                                <div className="flex items-center gap-2">
+                                    <Brain size={16} className="text-primary"/>
+                                    <span className="text-muted font-normal">LSTM Price Forecast</span>
+                                    {planLstmPrediction.trend === 'UP'
+                                        ? <TrendingUp size={16} className="text-red-400"/>
+                                        : <TrendingDown size={16} className="text-green-400"/>}
+                                    <span className={planLstmPrediction.trend === 'UP' ? 'text-red-400' : 'text-green-400'}>
+                                        {planLstmPrediction.trend} · {planLstmPrediction.confidence}% confidence
+                                    </span>
+                                </div>
+                                <div className="text-right">
+                                    <div className="text-xs text-muted">Predicted: ₹{planLstmPrediction.predicted_price}</div>
+                                    <div className={`text-xs mt-0.5 ${planLstmPrediction.trend === 'UP' ? 'text-red-400' : 'text-green-400'}`}>{planLstmPrediction.recommendation}</div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     <div className="card mb-6 details-card border-l-4 border-l-primary cursor-pointer hover:border-gray-500" onClick={() => setSelectedItem(plan.accommodation)}>
