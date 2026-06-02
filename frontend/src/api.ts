@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = '/api';
 
 export interface UserPreferences { category: string; flexibility: boolean; dietary?: string; }
 export interface UserInput { origin: string; destination: string; start_date: string; end_date: string; budget: number; preferences: UserPreferences; }
