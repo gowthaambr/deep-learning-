@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime, timedelta
 from typing import List, Dict
 
-from models import UserInput, TravelPlan, DayItinerary, Activity, Coordinates, TransportOption, AccommodationOption, Review, LocationDetail
+from models import UserInput, TravelPlan, DayItinerary, Activity, Coordinates, TransportOption, AccommodationOption, Review, LocationDetail, CostBreakdown
 from agents.execution_agent import execution_agent
 
 # Destination-specific curated activities per city category
@@ -85,12 +85,37 @@ class OptimizationAgent:
             itinerary.append(DayItinerary(day=day, date=date_str, activities=daily_activities, daily_cost=daily_cost))
             total_activities_cost += daily_cost
 
-        total_cost = transport.get('cost', 0) + (accomm.get('cost_per_night', 0) * max(1, days - 1)) + total_activities_cost
-        budget_adherence = total_cost <= user_input.budget
+        transport_cost = transport.get('cost', 0)
+        accommodation_cost = accomm.get('cost_per_night', 0) * max(1, days - 1)
+        total_cost = transport_cost + accommodation_cost + total_activities_cost
+        budget = user_input.budget
+        overage = max(0.0, total_cost - budget)
+        budget_adherence = total_cost <= budget
         status = "planned_with_warnings" if not budget_adherence else "planned"
-        warnings = ["Budget exceeded. Consider switching to Budget travel style."] if not budget_adherence else []
 
-        return itinerary, total_cost, budget_adherence, status, warnings
+        warnings = []
+        if not budget_adherence:
+            warnings.append(f"Budget exceeded by ₹{int(overage):,}.")
+            items = [
+                ("Transport", transport_cost, budget * 0.4),
+                ("Accommodation", accommodation_cost, budget * 0.35),
+                ("Activities", total_activities_cost, budget * 0.25),
+            ]
+            for label, cost, alloc in items:
+                if cost > alloc:
+                    warnings.append(f"{label}: ₹{int(cost):,} (₹{int(cost - alloc):,} over suggested allocation)")
+            warnings.append("Tip: Switch to Budget travel style to auto-select cheaper options.")
+
+        breakdown = CostBreakdown(
+            transport=transport_cost,
+            accommodation=accommodation_cost,
+            activities=total_activities_cost,
+            total=total_cost,
+            budget=budget,
+            overage=overage,
+        )
+
+        return itinerary, total_cost, budget_adherence, status, warnings, breakdown
 
 class PlannerAgent:
     def __init__(self):
@@ -163,7 +188,7 @@ class PlannerAgent:
         start_date = datetime.strptime(user_input.start_date, "%Y-%m-%d")
         end_date = datetime.strptime(user_input.end_date, "%Y-%m-%d")
         days = max(1, (end_date - start_date).days + 1)
-        itinerary, total_cost, budget_adherence, status, warnings = self.optimizer.optimize_itinerary(
+        itinerary, total_cost, budget_adherence, status, warnings, breakdown = self.optimizer.optimize_itinerary(
             user_input, user_input.destination, best_transport_dict, best_accomm_dict, days
         )
 
@@ -179,7 +204,8 @@ class PlannerAgent:
             status=status,
             alternative_suggestions=warnings,
             location_details=loc_details,
-            weather_forecast=weather
+            weather_forecast=weather,
+            cost_breakdown=breakdown,
         )
 
     def replan(self, current_plan: TravelPlan, reason: str) -> TravelPlan:

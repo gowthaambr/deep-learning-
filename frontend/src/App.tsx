@@ -423,13 +423,55 @@ function App() {
               </div>
 
               {plan.alternative_suggestions.length > 0 && (
-                <div className="alert-card mb-6 p-4 rounded-xl" style={{background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)'}}>
-                  <h4 className="flex items-center gap-2 text-danger">
-                    <AlertTriangle size={20} /> Optimization Agent Feedback
-                  </h4>
-                  <ul className="pl-8 mt-2 text-sm text-danger-muted">
-                    {plan.alternative_suggestions.map((s: string, i: number) => <li key={i}>{s}</li>)}
-                  </ul>
+                <div className="mb-6 rounded-xl overflow-hidden" style={{border: '1px solid rgba(239, 68, 68, 0.35)'}}>
+                  <div className="p-4" style={{background: 'rgba(239, 68, 68, 0.12)'}}>
+                    <h4 className="flex items-center gap-2 font-semibold" style={{color: '#f87171'}}>
+                      <AlertTriangle size={18} /> Optimization Agent Feedback
+                    </h4>
+                    <ul className="pl-5 mt-2 text-sm space-y-1" style={{color: '#fca5a5'}}>
+                      {plan.alternative_suggestions.map((s: string, i: number) => <li key={i}>{s}</li>)}
+                    </ul>
+                  </div>
+
+                  {plan.cost_breakdown && (
+                    <div className="p-4" style={{background: 'rgba(15,15,20,0.7)'}}>
+                      <p className="text-xs uppercase tracking-widest mb-3" style={{color: '#6b7280'}}>Cost Breakdown vs Budget</p>
+                      <div className="space-y-2">
+                        {([
+                          { label: 'Transport',      value: plan.cost_breakdown.transport,      alloc: plan.cost_breakdown.budget * 0.40 },
+                          { label: 'Accommodation',  value: plan.cost_breakdown.accommodation,  alloc: plan.cost_breakdown.budget * 0.35 },
+                          { label: 'Activities',     value: plan.cost_breakdown.activities,     alloc: plan.cost_breakdown.budget * 0.25 },
+                        ] as {label:string; value:number; alloc:number}[]).map(({ label, value, alloc }) => {
+                          const pct = Math.min((value / plan.cost_breakdown!.budget) * 100, 100);
+                          const over = value > alloc;
+                          return (
+                            <div key={label}>
+                              <div className="flex justify-between text-sm mb-1">
+                                <span style={{color: over ? '#f87171' : '#9ca3af'}}>{label}</span>
+                                <span style={{color: over ? '#f87171' : '#d1d5db'}}>
+                                  ₹{Math.round(value).toLocaleString()}
+                                  {over && <span className="ml-2 text-xs" style={{color:'#fca5a5'}}>+₹{Math.round(value - alloc).toLocaleString()} over</span>}
+                                </span>
+                              </div>
+                              <div className="rounded-full overflow-hidden" style={{height:6, background:'rgba(255,255,255,0.08)'}}>
+                                <div className="h-full rounded-full transition-all" style={{
+                                  width: `${pct}%`,
+                                  background: over ? '#ef4444' : '#22c55e'
+                                }}/>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="flex justify-between mt-4 pt-3" style={{borderTop:'1px solid rgba(255,255,255,0.07)'}}>
+                        <span className="text-sm font-semibold" style={{color:'#9ca3af'}}>Total vs Your Budget</span>
+                        <span className="text-sm font-bold" style={{color: plan.cost_breakdown.overage > 0 ? '#f87171' : '#22c55e'}}>
+                          ₹{Math.round(plan.cost_breakdown.total).toLocaleString()} / ₹{Math.round(plan.cost_breakdown.budget).toLocaleString()}
+                          {plan.cost_breakdown.overage > 0 && <span className="ml-2">(-₹{Math.round(plan.cost_breakdown.overage).toLocaleString()})</span>}
+                        </span>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

@@ -64,6 +64,14 @@ class LocationDetail(BaseModel):
     images: List[str]
     top_attractions: List[str]
 
+class CostBreakdown(BaseModel):
+    transport: float
+    accommodation: float
+    activities: float
+    total: float
+    budget: float
+    overage: float
+
 class TravelPlan(BaseModel):
     id: str
     origin: str = "DEL"
@@ -73,10 +81,11 @@ class TravelPlan(BaseModel):
     transport: TransportOption
     accommodation: AccommodationOption
     itinerary: List[DayItinerary]
-    status: str 
+    status: str
     alternative_suggestions: List[str] = []
     location_details: Optional[LocationDetail] = None
     weather_forecast: Optional[Dict] = None
+    cost_breakdown: Optional[CostBreakdown] = None
 
 class DestinationSummary(BaseModel):
     id: str
